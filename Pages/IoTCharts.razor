@@ -1,5 +1,6 @@
 @page "/iot-charts"
 
+@using ChartJs.Blazor.LineChart
 @using ChartJs.Blazor.PieChart
 @using applied_iot_client.Data
 @using System.Net.Http
@@ -10,13 +11,16 @@
 <h1>Charts showing temperature, humidity and air quality</h1>
 
 <Chart Config="_pieConfig"></Chart>
+<Chart Config="_lineConfig"></Chart>
 
 @code {
   private PieConfig? _pieConfig;
+  private LineConfig? _lineConfig;
 
   protected override void OnInitialized()
   {
     ConfigurePieConfig();
+    ConfigureLineConfig();
   }
 
 
@@ -38,8 +42,6 @@
     List<int> listOfZeros = new List<int>();
 
     List<int> airQualityList = await this.GetPieData();
-    await this.GetLineDataHumidity();
-    await this.GetLineDataTemperature();
 
     // Loop through the airQualityList and populate the respective lists
     foreach (var dataPoint in airQualityList)
@@ -72,13 +74,51 @@
     _pieConfig.Data.Datasets.Add(pieData);
   }
 
+  private async void ConfigureLineConfig()
+  {
+    _lineConfig = new LineConfig();
+
+    _lineConfig.Options = new LineOptions
+      {
+        Responsive = true,
+        Title = new OptionsTitle
+        {
+          Display = true,
+          Text = "Temperature & Humidity"
+        }
+      };
+
+    List<double> humidityData =  await this.GetLineDataHumidity();
+
+    List<double> temperatureData = await this.GetLineDataTemperature();
+
+    IDataset<double> humidityDataSet = new LineDataset<double>(humidityData)
+      {
+        Label = "Humidity",
+        BackgroundColor = ColorUtil.ColorHexString(0, 255, 0),
+        BorderColor = ColorUtil.ColorHexString(0, 255, 0),
+        Fill = FillingMode.Disabled
+      };
+
+    IDataset<double> temperatureDataSet = new LineDataset<double>(temperatureData)
+      {
+        Label = "Temperature",
+        BackgroundColor = ColorUtil.ColorHexString(255, 0, 0),
+        BorderColor = ColorUtil.ColorHexString(255, 0, 0),
+        Fill = FillingMode.Disabled
+      };
+
+    _lineConfig.Data.Datasets.Add(humidityDataSet);
+    _lineConfig.Data.Datasets.Add(temperatureDataSet);
+  }
+
   private async Task<List<int>> GetPieData()
   {
     // Create an instance of HttpClient to make the HTTP request
     var httpClient = new HttpClient();
 
     // Make the GET request to the API endpoint
-    string apiKey = "aio_rqsg52Uk4PePfpKQqEWDZoO6aqi3";
+    string apiKey = "aio_OeIV52246ieaYLFORUmPLltgs4yR";
 
     var apiUrl =
     "https://io.adafruit.com/api/v2/CarolineA/feeds/temperature-and-humidity-and-airquality-and-led.airquality/data";
@@ -86,8 +126,6 @@
     var requestUrl = $"{apiUrl}?X-AIO-Key={apiKey}";
 
     var response = await httpClient.GetAsync(requestUrl);
-
-    Console.WriteLine($"Response content: {response.Content}");
 
     // Read the response content as a string
     var data = await response.Content.ReadAsStringAsync();
@@ -112,7 +150,7 @@
     var httpClient = new HttpClient();
 
     // Make the GET request to the API endpoint
-    string apiKey = "aio_rqsg52Uk4PePfpKQqEWDZoO6aqi3";
+    string apiKey = "aio_OeIV52246ieaYLFORUmPLltgs4yR";
 
     var apiUrl =
     "https://io.adafruit.com/api/v2/CarolineA/feeds/temperature-and-humidity-and-airquality-and-led.humidity/data";
@@ -146,7 +184,7 @@
     var httpClient = new HttpClient();
 
     // Make the GET request to the API endpoint
-    string apiKey = "aio_rqsg52Uk4PePfpKQqEWDZoO6aqi3";
+    string apiKey = "aio_OeIV52246ieaYLFORUmPLltgs4yR";
 
     var apiUrl =
     "https://io.adafruit.com/api/v2/CarolineA/feeds/temperature-and-humidity-and-airquality-and-led.temperature/data";
@@ -168,7 +206,7 @@
       string formattedValue = airQualityData.value.Replace('.', ',');
 
       double value = double.Parse(formattedValue);
-      Console.WriteLine($"The Temperature: {value}");
+      Console.WriteLine($"The Temperature meep: {value}");
 
       values.Add(value);
     }
