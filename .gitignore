@@ -10,3 +10,6 @@ obj/
 .idea/
 *.suo
 *.user
+
+# Ignore .env files
+.env

@@ -10,6 +10,7 @@
   <ItemGroup>
     <PackageReference Include="Blazorise" Version="1.2.4" />
     <PackageReference Include="ChartJs.Blazor.Fork" Version="2.0.2" />
+    <PackageReference Include="DotNetEnv" Version="2.2.0" />
   </ItemGroup>
 
 </Project>

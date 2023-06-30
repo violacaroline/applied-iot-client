@@ -2,6 +2,7 @@
 
 @using ChartJs.Blazor.LineChart
 @using ChartJs.Blazor.PieChart
+@using DotNetEnv
 @using applied_iot_client.Data
 @using System.Net.Http
 @using System.Text.Json
@@ -17,8 +18,13 @@
   private PieConfig? _pieConfig;
   private LineConfig? _lineConfig;
 
+  private String? apiKey;
+
   protected override void OnInitialized()
   {
+    DotNetEnv.Env.Load();
+    // Access environment variables here
+    this.apiKey = Environment.GetEnvironmentVariable("ADAFRUIT_API_KEY");
     ConfigurePieConfig();
     ConfigureLineConfig();
   }
@@ -117,13 +123,10 @@
     // Create an instance of HttpClient to make the HTTP request
     var httpClient = new HttpClient();
 
-    // Make the GET request to the API endpoint
-    string apiKey = "aio_OeIV52246ieaYLFORUmPLltgs4yR";
-
     var apiUrl =
     "https://io.adafruit.com/api/v2/CarolineA/feeds/temperature-and-humidity-and-airquality-and-led.airquality/data";
 
-    var requestUrl = $"{apiUrl}?X-AIO-Key={apiKey}";
+    var requestUrl = $"{apiUrl}?X-AIO-Key={this.apiKey}";
 
     var response = await httpClient.GetAsync(requestUrl);
 
@@ -149,13 +152,10 @@
     // Create an instance of HttpClient to make the HTTP request
     var httpClient = new HttpClient();
 
-    // Make the GET request to the API endpoint
-    string apiKey = "aio_OeIV52246ieaYLFORUmPLltgs4yR";
-
     var apiUrl =
     "https://io.adafruit.com/api/v2/CarolineA/feeds/temperature-and-humidity-and-airquality-and-led.humidity/data";
 
-    var requestUrl = $"{apiUrl}?X-AIO-Key={apiKey}";
+    var requestUrl = $"{apiUrl}?X-AIO-Key={this.apiKey}";
 
     var response = await httpClient.GetAsync(requestUrl);
 
@@ -183,13 +183,10 @@
     // Create an instance of HttpClient to make the HTTP request
     var httpClient = new HttpClient();
 
-    // Make the GET request to the API endpoint
-    string apiKey = "aio_OeIV52246ieaYLFORUmPLltgs4yR";
-
     var apiUrl =
     "https://io.adafruit.com/api/v2/CarolineA/feeds/temperature-and-humidity-and-airquality-and-led.temperature/data";
 
-    var requestUrl = $"{apiUrl}?X-AIO-Key={apiKey}";
+    var requestUrl = $"{apiUrl}?X-AIO-Key={this.apiKey}";
 
     var response = await httpClient.GetAsync(requestUrl);
 
@@ -206,7 +203,6 @@
       string formattedValue = airQualityData.value.Replace('.', ',');
 
       double value = double.Parse(formattedValue);
-      Console.WriteLine($"The Temperature meep: {value}");
 
       values.Add(value);
     }
