@@ -1,0 +1,125 @@
+@page "/iot-charts"
+
+@using ChartJs.Blazor.PieChart
+@using applied_iot_client.Data
+@using System.Net.Http
+@using System.Text.Json
+
+<PageTitle>Applied IoT Charts</PageTitle>
+
+<h1>Charts showing temperature, humidity and air quality</h1>
+
+<Chart Config="_pieConfig"></Chart>
+
+@code {
+  private PieConfig? _pieConfig;
+
+  protected override void OnInitialized()
+  {
+    ConfigurePieConfig();
+  }
+
+  private async Task<List<int>> GetPieData()
+  {
+    // Create an instance of HttpClient to make the HTTP request
+    var httpClient = new HttpClient();
+
+    // Make the GET request to the API endpoint
+    string apiKey = "aio_sVoy482EHhYgOORPEsUV7vEsrKiT";
+
+    var apiUrl =
+    "https://io.adafruit.com/api/v2/CarolineA/feeds/temperature-and-humidity-and-airquality-and-led.airquality/data";
+
+    var requestUrl = $"{apiUrl}?X-AIO-Key={apiKey}";
+
+    var response = await httpClient.GetAsync(requestUrl);
+
+    Console.WriteLine($"Response content: {response.Content}");
+
+    // Read the response content as a string
+    var data = await response.Content.ReadAsStringAsync();
+    var jsonObject = JsonSerializer.Deserialize<dynamic>(data);
+
+    var values = new List<int>();
+
+    foreach (var dataPoint in jsonObject.EnumerateArray())
+    {
+      //Console.WriteLine($"The datapoint type: {dataPoint}");
+      var airQualityData = JsonSerializer.Deserialize<AirQualityData>(dataPoint.GetRawText());
+
+      //Console.WriteLine($"The airquality type: {airQualityData.value.GetType()}");
+
+      //Console.WriteLine($"The value: {airQualityData.value} and The value type: {airQualityData.value.GetType()}");
+
+      int value = int.Parse(airQualityData.value);
+
+      //Console.WriteLine($"The value: {value} and The value type: {value.GetType()}");
+
+      values.Add(value);
+    }
+
+
+    foreach (var value in values)
+    {
+      //Console.WriteLine($"The value: {value} and The value type: {value.GetType()}");
+    }
+
+    return values;
+  }
+
+  private async void ConfigurePieConfig()
+  {
+    _pieConfig = new PieConfig();
+
+    _pieConfig.Options = new PieOptions
+      {
+        Responsive = true,
+        Title = new OptionsTitle
+        {
+          Display = true,
+          Text = "Air Quality"
+        }
+      };
+
+
+
+    List<int> listOfOnes = new List<int>();
+    List<int> listOfZeros = new List<int>();
+
+    List<int> airQualityList = await this.GetPieData();
+
+    foreach (var item in airQualityList)
+    {
+      Console.WriteLine($"The actual item: {item}");
+    }
+    // Loop through the airQualityList and populate the respective lists
+    foreach (var dataPoint in airQualityList)
+    {
+      if (dataPoint == 1)
+      {
+        listOfOnes.Add(dataPoint);
+      }
+      else
+      {
+        listOfZeros.Add(dataPoint);
+      }
+    }
+
+    foreach (var value in new[] { "No Gas", "Gas Detected" })
+    {
+      _pieConfig.Data.Labels.Add(value);
+    }
+
+
+    var pieData = new PieDataset<int>(new[] { listOfOnes.Count, listOfZeros.Count })
+      {
+        BackgroundColor = new[]
+        {
+          ColorUtil.ColorHexString(0, 255, 0),
+          ColorUtil.ColorHexString(255, 0, 0),
+        }
+      };
+
+    _pieConfig.Data.Datasets.Add(pieData);
+  }
+}
