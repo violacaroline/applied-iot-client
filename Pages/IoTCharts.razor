@@ -16,13 +16,13 @@
   private PieConfig? _pieConfig;
   private LineConfig? _lineConfig;
 
+  private HttpClient httpClient;
+
   private String? apiKey;
 
   protected override void OnInitialized()
   {
-    @* DotNetEnv.Env.Load();
-    // Access environment variables here
-    this.apiKey = Environment.GetEnvironmentVariable("ADAFRUIT_API_KEY"); *@
+    this.httpClient = new HttpClient();
     ConfigurePieConfig();
     ConfigureLineConfig();
   }
@@ -118,12 +118,9 @@
 
   private async Task<List<int>> GetPieData()
   {
-    // ----------------- OWN MADE API FETCH -----------------
-    var httpClient = new HttpClient();
+    var apiUrlAirquality = "http://localhost:8088/api/airquality";
 
-    var apiUrl = "http://localhost:8088/api/airquality";
-
-    var response = await httpClient.GetAsync(apiUrl);
+    var response = await this.httpClient.GetAsync(apiUrlAirquality);
 
     var responseContent = await response.Content.ReadAsStringAsync();
 
@@ -134,11 +131,9 @@
 
   private async Task<List<double>> GetLineDataHumidity()
   {
-    var httpClient = new HttpClient();
+    var apiUrlHumidity = "http://localhost:8088/api/humidity";
 
-    var apiUrl = "http://localhost:8088/api/humidity";
-
-    var response = await httpClient.GetAsync(apiUrl);
+    var response = await this.httpClient.GetAsync(apiUrlHumidity);
 
     var responseContent = await response.Content.ReadAsStringAsync();
 
@@ -149,11 +144,9 @@
 
   private async Task<List<double>> GetLineDataTemperature()
   {
-    var httpClient = new HttpClient();
+    var apiUrlTemp = "http://localhost:8088/api/temperature";
 
-    var apiUrl = "http://localhost:8088/api/temperature";
-
-    var response = await httpClient.GetAsync(apiUrl);
+    var response = await this.httpClient.GetAsync(apiUrlTemp);
 
     var responseContent = await response.Content.ReadAsStringAsync();
 
