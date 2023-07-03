@@ -9,8 +9,15 @@
 
 <h1>Charts showing temperature, humidity and air quality</h1>
 
-<Chart Config="_pieConfig"></Chart>
-<Chart Config="_lineConfig"></Chart>
+@if (_pieConfig != null && _lineConfig != null)
+{
+  <Chart Config="_pieConfig"></Chart>
+  <Chart Config="_lineConfig"></Chart>
+}
+else
+{
+  <p style="text-align: center; padding: 40px;">LOADING...</p>
+}
 
 @code {
   private PieConfig? _pieConfig;
@@ -19,16 +26,16 @@
   private HttpClient httpClient;
 
   private String? apiKey;
-
-  protected override void OnInitialized()
+  
+  protected override async Task OnInitializedAsync()
   {
     this.httpClient = new HttpClient();
-    ConfigurePieConfig();
-    ConfigureLineConfig();
+
+    await this.ConfigurePieConfigAsync();
+    await this.ConfigureLineConfigAsync();
   }
 
-
-  private async void ConfigurePieConfig()
+private async Task ConfigurePieConfigAsync()
   {
     _pieConfig = new PieConfig();
 
@@ -78,7 +85,7 @@
     _pieConfig.Data.Datasets.Add(pieData);
   }
 
-  private async void ConfigureLineConfig()
+  private async Task ConfigureLineConfigAsync()
   {
     _lineConfig = new LineConfig();
 
@@ -128,6 +135,8 @@
 
     return values;
   }
+
+
 
   private async Task<List<double>> GetLineDataHumidity()
   {
